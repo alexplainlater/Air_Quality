@@ -18,9 +18,9 @@ class AirNow_AirQualityDataUpdater(AirQualityDataUpdater):
             - Selenium
     """
 
-    def __init__( self, server, database, username, password, tablename, AQSIDs, InfoLogFile = None, ErrorLogFile = None, logToConsole = True ):
+    def __init__( self, server, database, username, password, staging_tablename, AQSIDs, InfoLogFile = None, ErrorLogFile = None, logToConsole = True ):
         super().__init__( server, database, username, password, AQSIDs, InfoLogFile, ErrorLogFile, logToConsole )
-        self.airNowTable = tablename
+        self.airNowTable = staging_tablename
         # Ensure AirNow table exists in the database.  If not, create it.
         self.DBHandler.setAirNowTable( self.airNowTable, True )
 
