@@ -1,16 +1,16 @@
 import time
 import requests
+import logging
 import pandas as pd
-from AirQualityDataUpdater import AirQualityDataUpdater
 from datetime import datetime, timedelta, timezone
 from io import StringIO
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from AirNow_AirQualityDBHandler import AirNow_AirQualityDBHandler
 
-class AirNow_AirQualityDataUpdater(AirQualityDataUpdater):
+class AirNow_AirQualityDataUpdater:
     """
-        Child class of AirQualityDataUpdater to update data from AirNow files.
         - Uses: 
             - AirQualityDBHandler
             - Pandas
@@ -18,13 +18,17 @@ class AirNow_AirQualityDataUpdater(AirQualityDataUpdater):
             - Selenium
     """
 
-    def __init__( self, server, database, username, password, staging_tablename, AQSIDs, InfoLogFile = None, ErrorLogFile = None, logToConsole = True ):
-        super().__init__( server, database, username, password, AQSIDs, InfoLogFile, ErrorLogFile, logToConsole )
+    def __init__( self, database: str, staging_tablename: str, AQSIDs: list[str], DBHandler: AirNow_AirQualityDBHandler, log: logging = None ):
+        self.Database = database
         self.airNowTable = staging_tablename
+        self.AQSIDs = AQSIDs
+        self.DBHandler = DBHandler
+        self.Log = log
+        
         # Ensure AirNow table exists in the database.  If not, create it.
-        self.DBHandler.setAirNowTable( self.airNowTable, True )
+        self.DBHandler.setStagingTable( self.airNowTable, True )
 
-    def runUpdate( self ):
+    def runUpdate( self ) -> None:
         """
             Main driver of class
             - get the last inserted date and hour (DB Handler)
@@ -47,13 +51,13 @@ class AirNow_AirQualityDataUpdater(AirQualityDataUpdater):
             for file_date, hour in available_files:
                 if file_date == lastDateFound and hour <= lastHourFound:
                     # skip
-                    self.logger.debug( f"Skipping file with date: {file_date} and hour: {hour}" )
+                    self.Log.debug( f"Skipping file with date: {file_date} and hour: {hour}" )
                 else:
                     self.download_and_process_files( file_date, hour )
             date_to_check += timedelta( days = 1 )
         self.DBHandler.updateDWFactTables()
     
-    def check_for_available_files( self, dateToCheck ):
+    def check_for_available_files( self, dateToCheck: datetime ) -> list[tuple[datetime, int]]:
         """
             Checks the AirNow website for a list of files given a date to check.
             Uses Selenium and a Chrome WebDriver to allow the Javascript to load
@@ -92,10 +96,10 @@ class AirNow_AirQualityDataUpdater(AirQualityDataUpdater):
                     files.append( ( dateToCheck, hour ) )
             return files
         except requests.exceptions.RequestException as e:
-            self.logger.error( f"Error checking for new files: {e}" )
+            self.Log.error( f"Error checking for new files: {e}" )
             return []
 
-    def download_and_process_files( self, date, hour ):
+    def download_and_process_files( self, date: datetime, hour: int ) -> None:
         """
             Downloads a file from the AirNow website given a date and hour.
             Calls the process_file function once downloaded.
@@ -103,17 +107,17 @@ class AirNow_AirQualityDataUpdater(AirQualityDataUpdater):
         date_str = date.strftime( '%Y%m%d' )
         hour_str = str( hour ).zfill( 2 )
         file_url = f'https://files.airnowtech.org/airnow/{date.year}/{date_str}/HourlyData_{date_str}{hour_str}.dat'
-        self.logger.debug( f"Fetching file: {file_url}" )
+        self.Log.debug( f"Fetching file: {file_url}" )
         try:
             response = requests.get( file_url )
             response.raise_for_status()
             file_content = response.text
-            self.logger.info( f"Processing file: {file_url}" )
+            self.Log.info( f"Processing file: {file_url}" )
             self._process_file( file_content, file_url )            
         except requests.exceptions.RequestException as e:
-            self.logger.error( f"Failed to download {file_url}: {e}" )
+            self.Log.error( f"Failed to download {file_url}: {e}" )
 
-    def _process_file( self, file_content, file_url ):
+    def _process_file( self, file_content: str, file_url: str ) -> None:
         """
             Reads the file_content into a Pandas data frame. Filters on AQSIDs.
             Uses the DBHandler to insertIntoAirNowTable if records remain to be loaded.
@@ -124,13 +128,13 @@ class AirNow_AirQualityDataUpdater(AirQualityDataUpdater):
             df = pd.read_csv( StringIO( file_content ), delimiter = '|', names = column_headers )
             filtered_df = df[df['AQSID'].isin( self.AQSIDs )] #only grab records with AQSIDs we're interested in
             if not filtered_df.empty:
-                self.logger.info( f"Filtered data and sending {len( filtered_df )} records to SQL Server" )
-                self.DBHandler.insertIntoAirNowTable( filtered_df, file_url )
-                self.logger.info( f"Successfully processed file: {file_url}" )
+                self.Log.info( f"Filtered data and sending {len( filtered_df )} records to SQL Server" )
+                self.DBHandler.insertIntoStagingTable( filtered_df, file_url )
+                self.Log.info( f"Successfully processed file: {file_url}" )
             else:
-                self.logger.info( "No matching records found for AQSID list" )
+                self.Log.info( "No matching records found for AQSID list" )
         except Exception as e:
-            self.logger.error( f"Error processing file content: {e}" )
+            self.Log.error( f"Error processing file content: {e}" )
 
 
 
