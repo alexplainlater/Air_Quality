@@ -284,7 +284,6 @@ GO
 --Create data loading staging table shells
 --=============================================================================
 
-
 --=============================================================================
 -- A staging table to hold the data from the AirNow data provider
 --=============================================================================
@@ -308,4 +307,39 @@ CREATE TABLE AirQuality_Staging.dbo.AirNowData
 --=============================================================================
 -- A staging table to hold the data from the EPA API
 --=============================================================================
--- coming soon
+IF OBJECT_ID( 'AirQuality_Staging.dbo.EPA_API_Raw' ) IS NOT NULL
+	DROP TABLE AirQuality_Staging.dbo.EPA_API_Raw
+CREATE TABLE AirQuality_Staging.dbo.EPA_API_Raw
+(
+	recID INT IDENTITY(1, 1)
+	, state_code CHAR(2)
+	, county_code CHAR(3)
+	, site_number CHAR(4)
+	, parameter_code CHAR(5)
+	, poc TINYINT
+	, latitude DECIMAL(9, 6)
+	, longitude DECIMAL(9, 6)
+	, datum CHAR(5)
+	, parameter VARCHAR(50)
+	, date_local DATE
+	, time_local TIME
+	, date_gmt DATE
+	, time_gmt TIME
+	, sample_measurement DECIMAL(9, 5)
+	, units_of_measure VARCHAR(50)
+	, units_of_measure_code CHAR(3)
+	, sample_duration VARCHAR(25)
+	, sample_duration_code VARCHAR(25)
+	, sample_frequency VARCHAR(25)
+	, detection_limit DECIMAL(9, 5)
+	, uncertainty VARCHAR(25)
+	, qualifier VARCHAR(100)
+	, method_type VARCHAR(25)
+	, method VARCHAR(100)
+	, method_code CHAR(3)
+	, state VARCHAR(50)
+	, county VARCHAR(50)
+	, date_of_last_change DATE
+	, cbsa_code CHAR(5)
+	, URL_Source VARCHAR(1000)
+)
