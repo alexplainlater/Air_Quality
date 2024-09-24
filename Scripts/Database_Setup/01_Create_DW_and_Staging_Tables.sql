@@ -38,7 +38,7 @@ GO
 --=============================================================================
 IF OBJECT_ID( 'AirQuality_DW.dbo.Sites' ) IS NOT NULL
 	DROP TABLE AirQuality_DW.dbo.Sites
-CREATE TABLE dbo.Sites
+CREATE TABLE AirQuality_DW.dbo.Sites
 (
 	Full_Site_Number CHAR(11) PRIMARY KEY
 	, State_Code CHAR(2) NOT NULL
@@ -48,14 +48,14 @@ CREATE TABLE dbo.Sites
 	, Longitude DECIMAL(9, 6) NULL
 	, Geog GEOGRAPHY NULL
 	, Datum CHAR(5) NULL
-	, Elevation DECIMAL(9, 6) NULL
+	, Elevation DECIMAL(12, 6) NULL
 	, Land_Use VARCHAR(25) NULL
 	, Location_Setting VARCHAR(25) NULL
 	, Site_Established_Date DATE NULL
 	, Site_Closed_Date DATE NULL
 	, GMT_Offset SMALLINT NULL
 	, Owning_Agency VARCHAR(100) NULL
-	, Local_Site_Name VARCHAR(100) NOT NULL
+	, Local_Site_Name VARCHAR(100) NULL
 	, Address VARCHAR(50) NULL
 	, ZIP_Code VARCHAR(5) NULL
 	, State_Name VARCHAR(30) NULL
