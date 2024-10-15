@@ -14,7 +14,7 @@
 
 ## Visualization
 
-[Power BI Report](PowerBI/AirQuality.pbix) - Power BI report that visualizes the data in this project.
+[Power BI Report](PowerBI/) - Power BI report that visualizes the data in this project.
 
 #### Screenshots
 
