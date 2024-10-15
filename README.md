@@ -18,10 +18,10 @@
 
 #### Screenshots
 
-<img src="PowerBI/Screenshots/01a_AirQuality_CurrentReadings.png" alt="Current Readings" width="300" />
-<img src="PowerBI/Screenshots/02a_AirQuality_Map.png" alt="Air Quality Map and 36-hour trend" width="300" />
-<img src="PowerBI/Screenshots/03b_AirQuality_Temp_50_days.png" alt="Temperature last 50 days" width="300" />
-<img src="PowerBI/Screenshots/04b_AirQuality_Wind_Direction.png" alt="Wind Direction" width="300" />
-<img src="PowerBI/Screenshots/05a_AirQuality_PM_48hr.png" alt="Particulate Matter" width="300" />
-<img src="PowerBI/Screenshots/06a_AirQuality_Correlation_Matrix.png" alt="Correlation Matrix" width="300" />
+<img src="PowerBI/Screenshots/01a_AirQuality_CurrentReadings.png" alt="Current Readings" width="400" />
+<img src="PowerBI/Screenshots/02a_AirQuality_Map.png" alt="Air Quality Map and 36-hour trend" width="400" />
+<img src="PowerBI/Screenshots/03b_AirQuality_Temp_50_days.png" alt="Temperature last 50 days" width="400" />
+<img src="PowerBI/Screenshots/04b_AirQuality_Wind_Direction.png" alt="Wind Direction" width="400" />
+<img src="PowerBI/Screenshots/05a_AirQuality_PM_48hr.png" alt="Particulate Matter" width="400" />
+<img src="PowerBI/Screenshots/06a_AirQuality_Correlation_Matrix.png" alt="Correlation Matrix" width="400" />
 
