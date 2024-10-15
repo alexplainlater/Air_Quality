@@ -13,33 +13,22 @@ In my PowerBI report, I already have a sheet created that graphs the outdoor tem
 
 I think it would make more sense to take a look at this by week of the year to reduce some of the noise, but also try to give us some granularity. So, I set the X-axis field to be my WeekNum field in my Calendar table. I already have an existing DAX measure that determines the average daily maximum temperature defined as:
 
-` `1. \_AvgDailyMaxTemp = 
-
-` `2. AVERAGEX(
-
-` `3.     SUMMARIZE(
-
-` `4.         'All Facts',
-
-` `5.         'Calendar'[Date],
-
-` `6.         "Daily Max", MAXX(
-
-` `7.             FILTER('All Facts', 
-
-` `8.                 'All Facts'[Date] = EARLIER('Calendar'[Date])
-
-` `9.             ),
-
-10\.             'All Facts'[Temperature]
-
-11\.         )
-
-12\.     ),
-
-13\.     [Daily Max]
-
-14\. )
+```DAX
+_AvgDailyMaxTemp = 
+AVERAGEX(
+    SUMMARIZE(
+        'All Facts',
+        'Calendar'[Date],
+        "Daily Max", MAXX(
+            FILTER('All Facts', 
+                'All Facts'[Date] = EARLIER('Calendar'[Date])
+            ),
+            'All Facts'[Temperature]
+        )
+    ),
+    [Daily Max]
+)
+```
 
 By adding \_AvgDailyMaxTemp to the Y-axis field, the following line chart is produced:
 
@@ -51,29 +40,20 @@ I can see there are areas where there appears to be sharper increases and sharpe
 
 To calculate the weekly slope, I created the following DAX measure to find the difference between the average daily maximum temperature between two consecutive weeks:
 
-` `1. WeeklySlope = 
+```DAX
+WeeklySlope = 
+VAR CurrentWeekNum = MAX('Calendar'[WeekNum])
+VAR PreviousWeekNum = CurrentWeekNum - 1
+VAR CurrentAvgTemp = CALCULATE([_AvgDailyMaxTemp], 'Calendar'[WeekNum] = CurrentWeekNum)
+VAR PreviousAvgTemp = CALCULATE([_AvgDailyMaxTemp], 'Calendar'[WeekNum] = PreviousWeekNum)
 
-` `2. VAR CurrentWeekNum = MAX('Calendar'[WeekNum])
-
-` `3. VAR PreviousWeekNum = CurrentWeekNum - 1
-
-` `4. VAR CurrentAvgTemp = CALCULATE([\_AvgDailyMaxTemp], 'Calendar'[WeekNum] = CurrentWeekNum)
-
-` `5. VAR PreviousAvgTemp = CALCULATE([\_AvgDailyMaxTemp], 'Calendar'[WeekNum] = PreviousWeekNum)
-
-` `6.  
-
-` `7. RETURN 
-
-` `8. IF(
-
-` `9.     NOT ISBLANK(CurrentAvgTemp) && NOT ISBLANK(PreviousAvgTemp),
-
-10\.     CurrentAvgTemp - PreviousAvgTemp,
-
-11\.     BLANK()
-
-12\. )
+RETURN 
+IF(
+    NOT ISBLANK(CurrentAvgTemp) && NOT ISBLANK(PreviousAvgTemp),
+    CurrentAvgTemp - PreviousAvgTemp,
+    BLANK()
+)
+```
 
 After creating this measure, I want to add it to the visual as columns combined with the existing line. To do this, change the visual to a Line and Clustered Column Chart. Next, add WeeklySlope to the visual, and set it as clustered columns by going to the Visualizations pane. Then, navigate to the Format Visual tab, select Y-axis, go to Values, and toggle the Switch axis position to on. This produces the following visual:
 
